@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import rospy
+import time
 from std_msgs.msg import String
 
 ########## NODE A ###########
@@ -8,42 +9,54 @@ from std_msgs.msg import String
 pub = rospy.Publisher('NodeA', String, queue_size=10)
 
 mensagemRecebida = None
+mensagem = "Minha mensagem numero: "
+numeroMensagem = 0
 ix = 0
+start_time = 0.0
+end_time = 0.0
+aux_time = 0.0
 nomeNode = "node A"
-tempoTotal = 0
 
-def verificaTempo(data):
-    separator = ":"
-    #Verifica se a string tem o ":"
-    if separator in data:
-        #Divide a string e guarda so a parte que o Node A mandou
-    	tempoOriginalA = float(data[:13]) #pega primeira parte da string que eh o momento que A gerou a mensagem original
-        tempoVoltaC = float(data[14:27]) #pega a segunda parte com o tempo que C retornou pra A
-        
-        global tempoTotal
-        tempoTotal = tempoVoltaC - tempoOriginalA
-       
-
-
-        
-        
 
 def quandoOuvir(data):
+    global numeroMensagem
     if data.data == None:
         novaHash = "%s" % rospy.get_time() + "%s"
         rospy.loginfo("%s", novaHash) 
         print "Ouvido mas com mensagem None!"
         pub.publish(novaHash)
     else:
-        print "Ouvido e com mesnagem nao vazia: %s" % data.data
-        novaHash = "%s" % rospy.get_time() + ":" + "%s" % data.data
-        print "Mensagem Enviada para B: %s" % novaHash
-        #Simulando um atraso
-        rospy.sleep(5)
-        #Publicando
-        pub.publish(novaHash)
+	global end_time
+	end_time = time.time()
+	print "End_time %f" % end_time
+	str1 = mensagem + "%s" % numeroMensagem
+	str2 = data.data
+	valido = str1 in str2
+	print valido
+	if (((end_time - start_time) < 10.0) and valido):         
+		print "Ouvido e com mesnagem nao vazia: %s" % data.data
+		numeroMensagem += 1
+        	novaHash = "%s" % rospy.get_time() + ":" + mensagem + "%s" % numeroMensagem
+        	print "Mensagem Enviada para B: %s" % novaHash
+        	#Simulando um atraso
+        	#Publicando
+        	pub.publish(novaHash)
+		global start_time
+            	start_time = time.time()
+	else:		
+		novaHash = "%s" % rospy.get_time() + ":" + mensagem + "%s" % numeroMensagem
+        	print "Mensagem Enviada para B: %s" % novaHash
+        	#Simulando um atraso
+        	#Publicando
+        	pub.publish(novaHash)
+		global start_time
+            	start_time = time.time()
+		
+		
+        global start_time
+	print "Start_time %f" % start_time
     
-    rospy.sleep(5)
+    rospy.sleep(1)
 
 def quandoFalar():
 
@@ -62,14 +75,29 @@ def quandoFalar():
         # 'tempoChegada' + ';' rospy.get_time() + rospy.get_caller_id()
 
 	if ix == 0:
-	    novaHash = "%s" % rospy.get_time() 
-        
-            rospy.loginfo("%s", novaHash)
+	    
+	    novaHash = "%s" % rospy.get_time() + ":" + mensagem + "%s" % numeroMensagem
+            print "Mensagem Enviada para B: %s" % novaHash
 
             #publica nova mensagem para B ouvir
             pub.publish(novaHash)
-	    global i
-            ix = 1
+	    global ix
+	    global start_time
+	    global aux_time
+ 		
+	    aux_time = time.time()            
+	    start_time = time.time()
+	    print "Start_time %f" % start_time
+	    print "aux_time %f" % aux_time  	
+	    
+	    while (aux_time - start_time) < 10:
+		rospy.sleep(1)
+                aux_time = time.time()
+		print "aux_time atual %f" % aux_time
+	        ix = 1
+
+	    
+            ix = 0
         #else:
             #global mensagemRecebida
             #if mensagemRecebida == None:
@@ -81,7 +109,7 @@ def quandoFalar():
         
 
         #rate.sleep()
-        rospy.sleep(5)
+        rospy.sleep(1)
 
 if __name__ == '__main__':
     try:

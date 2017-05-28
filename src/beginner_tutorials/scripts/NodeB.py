@@ -19,10 +19,10 @@ def quandoOuvir(data):
         rospy.loginfo("%s", novaHash)
         print "Mensagem Enviada para C: %s" % novaHash
 	#Simulando um atraso
-        rospy.sleep(5)
+        rospy.sleep(1)
         pub.publish(novaHash)
     
-    rospy.sleep(10)
+    rospy.sleep(1)
 
 def quandoFalar():
     #Cria novo node
@@ -47,7 +47,7 @@ def quandoFalar():
 
         #seta o tempo pra espera
         #rate.sleep()
-        rospy.sleep(5)
+        rospy.sleep(1)
 
 if __name__ == '__main__':
     try:
