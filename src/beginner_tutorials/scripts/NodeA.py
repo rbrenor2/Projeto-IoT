@@ -10,14 +10,23 @@ pub = rospy.Publisher('NodeA', String, queue_size=10)
 mensagemRecebida = None
 ix = 0
 nomeNode = "node A"
-
+tempoTotal = 0
 
 def verificaTempo(data):
     separator = ":"
     #Verifica se a string tem o ":"
     if separator in data:
         #Divide a string e guarda so a parte que o Node A mandou
-    	data[4:8]
+    	tempoOriginalA = float(data[:13]) #pega primeira parte da string que eh o momento que A gerou a mensagem original
+        tempoVoltaC = float(data[14:27]) #pega a segunda parte com o tempo que C retornou pra A
+        
+        global tempoTotal
+        tempoTotal = tempoVoltaC - tempoOriginalA
+       
+
+
+        
+        
 
 def quandoOuvir(data):
     if data.data == None:
@@ -60,7 +69,7 @@ def quandoFalar():
             #publica nova mensagem para B ouvir
             pub.publish(novaHash)
 	    global i
-            i = 1
+            ix = 1
         #else:
             #global mensagemRecebida
             #if mensagemRecebida == None:
